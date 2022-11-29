@@ -1,73 +1,69 @@
 import axios from "axios";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState } from "react";
 import UserItem from './UserItem/UserItem';
-
-const usePagination = (data, volume = 10) => {
-    const totalPages = useMemo(() => Math.floor(data.length / volume), [
-      volume,
-      data.length
-    ]);
-
-    const [page, setPage] = useState(0);
-
-    const slicedData = useMemo(
-      () => data.slice(page * volume, page * volume + volume),
-      [data, volume, page]
-    );
-
-    return { data: slicedData, page, totalPages, setPage };
-};
 
 const UserList = () => {
     const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         axios
         .get(`https://jsonplaceholder.typicode.com/users`)
-        .then(response => setData(response.data))
+        .then(response => {
+            setData(response.data);
+            setLoading(false);
+        })
+        .catch(() => {
+            alert('There was an error while retrieving the data')
+        })
     });
 
-    const pagination = usePagination(data, 4);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [recordsPerPage] = useState(4);
 
-    const onNextPage = useCallback(() => {
-        pagination.setPage((prevState) => {
-            if (prevState < pagination.totalPages) {
-                return prevState + 1;
-            }
-            return prevState;
-        })
-    }, [pagination]);
+    const indexOfLastRecord = currentPage * recordsPerPage;
+    const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+    const currentRecords = data.slice(indexOfFirstRecord, indexOfLastRecord);
+    const nPages = Math.ceil(data.length / recordsPerPage);
+    const pageNumbers = [...Array(nPages + 1).keys()].slice(1);
 
-    const onPrevPage = useCallback(() => {
-        pagination.setPage((prevState) => {
-            if (prevState > 0) {
-                return prevState - 1;
-            }
-            return prevState;
-        })
-    }, [pagination]);
+    const nextPage = () => {
+        if(currentPage !== nPages)
+            setCurrentPage(currentPage + 1)
+    }
+
+    const prevPage = () => {
+        if(currentPage !== 1)
+            setCurrentPage(currentPage - 1)
+    }
 
     return (
         <div>
-            {
-                pagination.data.map(item => {
-                    return (
+            { currentRecords.map(item => {
+                return (
                     <div key={item.id}>
                         <UserItem item={item} />
                     </div>
-                    )
-                })
+                )
+            })
             }
-            <div className='paginationBlock'>
-                <div className='paginationButton'>
-                    <button onClick={onPrevPage} disabled={pagination.page <= 0}> Prev page </button>
-                    <button onClick={onNextPage} disabled={pagination.page === pagination.totalPages}> Next page </button>
-                </div>
-                <div>
-                    <p>Page: {pagination.page}</p>
-                    <p>Total Page: {pagination.totalPages}</p>
-                </div>
-            </div>
+            <nav>
+                <ul className='pagination justify-content-center'>
+                    <li className='page-item '>
+                        <a onClick={prevPage} href='#' className='page-link'>Previous</a>
+                    </li>
+                    { pageNumbers.map(num => (
+                        <li key={num} className={`page-item ${currentPage === num ? 'active' : '' }`}>
+                            <a href='#' onClick={ () => setCurrentPage(num) } className='page-link'>{num}</a>
+                        </li>
+                    ))
+                    }
+                    <li className='page-item'>
+                        <a onClick={nextPage} href='#' className='page-link'>Next</a>
+                    </li>
+                </ul>
+            </nav>
+
         </div>
     )
 }

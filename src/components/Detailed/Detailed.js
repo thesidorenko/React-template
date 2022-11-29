@@ -2,6 +2,7 @@ import style from './Detailed.module.css'
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from 'react-router';
+import { Link } from 'react-router-dom';
 
 const Detailed = () => {
     const { id } = useParams();
@@ -36,7 +37,7 @@ const Detailed = () => {
                             </div>
                         </div>
                     </div>
-                    <button onClick={() => navigate(`/`)} className={style.buttonBack}>Back</button>
+                    <button onClick={() => navigate(`/`)} className='btn btn-outline-dark' type='button'>Back</button>
                 </div>
             )}
         </div>

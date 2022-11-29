@@ -3,6 +3,10 @@
     background: #fff;
 }
 
+.container h1 {
+    font-weight: 600;
+}
+
 .container img {
     margin-right: 50px;
 }
@@ -13,11 +17,5 @@
 
 .name {
     margin: 0;
-}
-
-.buttonBack {
-    background-color: transparent;
-    margin-top: 20px;
-    border: 1px solid #000;
-    border-radius: 5px;
+    font-weight: 600;
 }
